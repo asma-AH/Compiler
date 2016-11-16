@@ -1,0 +1,137 @@
+/**
+ * JavaCC template file created by SF JavaCC plugin 1.5.28+ wizard for JavaCC 1.5.0+
+ */options{  static = true;}PARSER_BEGIN(MyNewGrammar)package Package;
+
+public class MyNewGrammar{  public static void main(String args []) throws ParseException  {    MyNewGrammar parser = new MyNewGrammar(System.in);
+    start();
+  }
+}
+PARSER_END(MyNewGrammar) SKIP :
+{
+  " "
+| "\r"
+| "\t"
+| "\n"
+}
+
+TOKEN : /* OPERATORS */
+{
+  < PLUS : "+" >
+| < MINUS :"-" >
+| < MULTIPLY : "*" | "/" >
+| < LP : "(" >
+| < RP : ")" >
+| < NUM : (["0"-"9"])+("."(["0"-"9"])+)?(("e"|"E")("+"|"-")?(["0"-"9"])+)? >
+| <  FACTOR : "!" >
+|  < EXPONENT : "^" >
+}
+
+void start():
+{
+  double d =0; 
+}
+{
+  ( d=E() ";" { System.out.println(d); } )+
+}
+/* E  - > F(+E)?
+/* F  - > A(*F)?
+/* A  - > N(^NN)?
+   N   - >  NN(!)?|(-NN)
+   NN   - > NUM|(E)
+*/
+
+double  E():
+{
+  double d1 =0;
+  double d2=0;
+  double  result = 0;
+  Token t1 =null;
+  Token t2 = null;
+  Token t = null;
+}
+{
+  d1= F() (( < PLUS >)
+    d2 = E()
+    { d1+=d2; }
+   | (t=<MINUS>) d2 =E()
+   { d1-=d2; } )?
+ 
+  {
+    return d1 ;
+  }
+  
+  
+}
+
+double F():
+{
+  double e,e1=0;
+  Token t = null;
+  
+}
+{
+     e= A() ( t=< MULTIPLY > e1=F())?
+    { 
+       if (t == null)
+       	return e;
+       else if (t.image.equals("*"))
+       	return e * e1;
+       else
+       	return e / e1;
+     } 
+     
+}
+double A():
+{
+  double number=0;
+  double  ex =0;
+  Token t = null;
+}
+{
+    number = N()( t= < EXPONENT >  ex = E())?
+     {
+       if(t==null)
+       return number ;
+       else
+       return Math.pow(number,ex);
+      }
+}
+double N():
+{
+  double d1=0;
+    double d2 =0;
+  double res  = 1;
+  Token t = null;
+}
+{
+      d1 = NN() (t=< FACTOR >)? {
+
+         if(t==null)
+         return d1;
+        else
+          if (d1 !=0)          
+	    for (int i=1; i<=d1; i++)
+	    	res *=i;
+	    	return res;
+	   }
+	   |(< MINUS >)  d2=NN()
+  
+	 {
+	   return -d2; }
+	 }
+
+	  
+
+
+double NN():
+{
+  double  d=0 ;
+  Token t = null;
+}
+{
+    t = < NUM >
+   { return Double.parseDouble(t.image); } 
+   | < LP > d = E() < RP >
+   {return d;} 
+
+}
